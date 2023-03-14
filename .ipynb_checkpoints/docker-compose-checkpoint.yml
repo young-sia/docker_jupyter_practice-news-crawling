@@ -25,7 +25,7 @@ services:
         source: datastorage
         target: /var/lib/mysql
     environment:
-      MARIADB_DATABASE: naver_news
+      MARIADB_DATABASE: internet_news
       MARIADB_ROOT_PASSWORD: mariadb
     ports:
       - target: 3306
@@ -46,13 +46,13 @@ services:
         published: 8080
         protocol: tcp
 
-  collector:
-    build:
-      context: .
-    env_file:
-      - .env
-    depends_on:
-      database:
-        condition: service_healthy
+#  collector:
+#    build:
+#      context: .
+#    env_file:
+#      - .env
+#    depends_on:
+#      database:
+#        condition: service_healthy
 
 

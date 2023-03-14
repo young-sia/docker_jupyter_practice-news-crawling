@@ -1,7 +1,8 @@
-requests
-prefect
-mysql-connector-python
-selenium
-webdriver_manager
-bs4
-pandas
+requests == 2.28.1
+prefect ==2.7.7
+mysql-connector-python ==8.0.31
+selenium == 4.7.2
+webdriver_manager == 3.8.5
+bs4 == 0.0.1
+pandas == 1.5.2
+spacy

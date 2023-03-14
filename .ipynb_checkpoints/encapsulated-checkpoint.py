@@ -1,4 +1,3 @@
-import os
 import time
 from bs4 import BeautifulSoup
 import requests
@@ -8,9 +7,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
-import spacy
-from string import punctuation
-from heapq import nlargest
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -61,7 +57,7 @@ def make_url(search, start_pg, end_pg):
 
 
 def make_certain_url():
-    search = os.getenv('KEYWORD')
+    search = 'it정책'
     # 검색 시작할 페이지 입력
     page = 1  # ex)1 =1페이지,2=2페이지...
     # 검색 종료할 페이지 입력
@@ -80,10 +76,13 @@ def get_naver_news_urls(headers, driver, search_urls):
     for i in search_urls:
         driver.get(i)
         time.sleep(1)  # 대기시간 변경 가능
+        original_html = requests.get(i, headers = headers)
+        # html = BeautifulSoup(original_html.text, "html.parser")
         news_urls = driver.find_elements(By.CSS_SELECTOR, 'a.info')
 
         # 네이버 기사 눌러서 제목 및 본문 가져오기#
         # 네이버 기사가 있는 기사 css selector 모아오기
+        # news_urls = driver.find_elements(By.CSS_SELECTOR, 'news. info')
         print(f'look into news.info page: {i}')
 
         # 위에서 생성한 css selector list 하나씩 클릭하여 본문 url얻기
@@ -157,44 +156,8 @@ def get_naver_news_title_and_content(headers, naver_url):
     return news_title, summary, content, news_record_time
 
 
-# 더욱 매끄러운 요약 필요
 def summarize_article(news_content):
-    per = 0.05
-    nlp = spacy.load("ko_core_news_sm")
-    table = str.maketrans('[]"=,()!@#$%^&*\'', '                ')
-    news_fixed = news_content.translate(table)
-    doc = nlp(news_fixed)
-    # tokens = [token.text for token in doc]
-    word_frequencies = dict()
-    for word in doc:
-        if word.text not in punctuation:
-            if word.text not in word_frequencies.keys():
-                word_frequencies[word.text] = 1
-            else:
-                word_frequencies[word.text] += 1
-    max_frequency = max(word_frequencies.values())
-    for words in word_frequencies.keys():
-        word_frequencies[words] = word_frequencies[words]/max_frequency
-    sentence_tokens = [sentence for sentence in doc.sents]
-    sentence_scores = dict()
-    for sentence in sentence_tokens:
-        for word in sentence:
-            if word.text in punctuation:
-                pass
-            else:
-                if sentence not in sentence_scores.keys():
-                    sentence_scores[sentence] = word_frequencies[f'{word}']
-                else:
-                    sentence_scores[sentence] += word_frequencies[f'{word}']
-    select_length = int(len(sentence_tokens)*per)
-    if select_length < 2:
-        select_length = 2
-    else:
-        pass
-    summary = nlargest(select_length, sentence_scores, key = sentence_scores.get)
-    final_summary = [word.text for word in summary]
-    summary = ''.join(final_summary)
-    return summary
+    pass
 
 
 def main():
@@ -221,12 +184,10 @@ def main():
         contents.append(content)
         written_time.append(recorded_time)
 
-    summarizations = list()
-    for each_news in contents:
-        summarize = summarize_article(each_news)
-        summarizations.append(summarize)
-
-    print(summarizations)
+    print(titles)
+    print(summaries)
+    print(contents)
+    print(written_time)
 
 
 if __name__ == '__main__':
